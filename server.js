@@ -9,6 +9,13 @@ app.use( express.session({
 }));
 app.use( express.static( __dirname + '/static' ) );
 
+
+/* Server */
+//Get the environment variables we need.
+var ipaddr  = process.env.OPENSHIFT_NODEJS_IP || "127.0.0.1";
+var port    = process.env.OPENSHIFT_NODEJS_PORT || 8080;
+
+
 /* RESTful JS */
 
 app.get( /^\/module\/(.+)\/([^\/]+)$/, function ( req, res ) { 
@@ -47,5 +54,6 @@ app.get( '/', function( req, res ) {
   res.redirect( '/index.html' );
 });
 
+
 // Server Start
-app.listen( 8080 );
+app.listen( port, ipaddr );
