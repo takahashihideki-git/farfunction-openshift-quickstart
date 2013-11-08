@@ -1,0 +1,49 @@
+<html>
+<head>
+<title>RESTful JS</title>
+<style>
+blockquote {
+  margin: 1em 0;
+  padding: 1em;
+  background-color: #eee;
+}
+</style>
+</head>
+<body>
+<h1>RESTful JS</h1>
+
+<p>Access Node.js Modules in RESTful.</p>
+
+<p>e.g.) http://example.com/module/foo/get</p>
+
+<p>↓</p>
+
+<blockquote>
+<pre>
+// root/node_modules/restfuljs/foo.js
+
+var request = require("request");
+
+exports.get = function( req, res ) {
+
+  var args = {
+    "method": "GET",
+    "url": "http://wedata.net/databases/JapanAPI/items_all.json",
+  };
+  request( args, function( error, response, body ){
+    res.send( body )
+  });
+
+  return false;
+
+};
+</pre>
+</blockquote>
+
+
+
+
+
+
+</body>
+</html>

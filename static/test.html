@@ -1,0 +1,31 @@
+<html>
+<head></head>
+<body>
+
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script type="text/javascript" >
+
+$( function () { 
+
+  $.ajax({
+    url: "http://127.0.0.1:8080/module/japanAPI/get",
+    dataType: "jsonp",
+    data: {
+      hoge: 1
+    },
+    success: function ( data, textStatus, jqXHR ) {
+      $.each( eval( data ), function () { 
+        console.log( this.name );
+      });
+    },
+    error: function ( jqXHR, textStatus, errorThrown ) {
+      alert( textStatus );
+    }
+  });
+
+});
+
+</script>
+
+</body>
+</html>
