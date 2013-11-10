@@ -1,26 +1,63 @@
 <html>
 <head>
+<meta charset="utf-8">
 <title>RESTful JS</title>
 <style>
+body {
+  font-family: sans-serif;
+  line-height: 1.4;
+}
 blockquote {
   margin: 1em 0;
   padding: 1em;
   background-color: #eee;
+}
+textarea {
+  width: 400px;
+  height: 200px;
 }
 </style>
 </head>
 <body>
 <h1>RESTful JS</h1>
 
-<p>Access Node.js Modules in RESTful.</p>
+<form>
+  <table>
+    <tr><td>module name</td><td><input id="name" type="text"></td></tr>
+    <tr><td>source</td><td><textarea id="source"></textarea></td></tr>
+    <tr><td></td><td><input type="button" value="post" onclick="post()"></td></tr>
+  </table>
+</form>
 
-<p>e.g.) http://example.com/module/foo/get</p>
+<p><a id="moduleUrl" href="javascript:void(0)" target="_blank"></a></p>
 
-<p>↓</p>
+<hr>
+
+<p>「RESTful JS」サーバーには、CommonJS 形式で記述された Javascript モジュールを Web フォームからポストすることができます。</p>
+
+<p>そして、ポストされたモジュールがエクスポートしている関数に RESTful な URL でただちにアクセスすることができるようになります。</p>
+
+<p>つまり、シングルファイルでできた小さな"Webアプリケーション"を作ってすぐにホスティングすることができるのです。まるでブログに記事を書いて公開するような感覚で。</p>
+
+<p>しかしそれは、Webアプリケーションというよりも、"Web関数" とよんだほうがふさわしい何かかもしれません。</p>
+
+<p>"Web関数"は、ブラウザさえあれば手軽に記述してすぐに実行できるという点で、クライアントサイドで動作する Javascript コードと同じようなものです。
+
+<p>ただし、次のような点で大きく異なります。</p>
+
+<ol>
+  <li>API Key や OAuth のコンシェーマーキーなどの「実行上の秘密」を利用者に完全に隠しておくことができます。</li>
+  <li>クロスドメイン制約を気にすることなく、他のドメインの API を利用することができます。（ RESTful JS は JSONPによるレスポンスをサポートしています。）</li>
+  <li>ファイルや DB を使えば、マルチデバイス、マルチユーザーで共有できるデータをサーバーサイドに永続化することができます。</li>
+</ol>
+
+<p>e.g.) http://example.com/module/foo/get?callback=callback</p>
+
+<p>↓ Request</p>
 
 <blockquote>
 <pre>
-// root/node_modules/restfuljs/foo.js
+// root/node_modules/restfuljs/foo.js ( posted from web form )
 
 var request = require("request");
 
@@ -28,7 +65,7 @@ exports.get = function( req, res ) {
 
   var args = {
     "method": "GET",
-    "url": "http://wedata.net/databases/JapanAPI/items_all.json",
+    "url": "http://example.com/example.json", // Cross Domain !
   };
   request( args, function( error, response, body ){
     res.send( body )
@@ -40,10 +77,59 @@ exports.get = function( req, res ) {
 </pre>
 </blockquote>
 
+<p>↓ Response ( JSONP: As &lt;script&gt; )</p>
 
+<blockquote>
+<pre>
+callback( {
+    "title": "Example Schema",
+    "type": "object",
+    "properties": {
+        "firstName": {
+            "type": "string"
+        },
+        "lastName": {
+            "type": "string"
+        },
+        "age": {
+            "description": "Age in years",
+            "type": "integer",
+            "minimum": 0
+        }
+    },
+    "required": ["firstName", "lastName"]
+} )
+</pre>
+</blockquote>
 
+<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+<script>
 
+var post = function () {
+  
+  $.ajax( {
+    url: "/post/" + $( "#name" ).val(),
+    method: "POST",
+    data: { source: $( "#source" ).val() },
+    success: function ( data ) {
+      if ( data.status ) {
+        alert( "saved" );
+        var url = window.location.href + "module/" + $( "#name" ).val(); 
+        $( "#moduleUrl" ).attr( "href", url  );
+        $( "#moduleUrl" ).text( "Module URL:" + url + "/[exported function name]"  );
+      }
+      else {
+        alert( "error" );
+      }
+    },
+    error: function ( xhr, status, err ) {
+      alert( status + "\n" + err );
+    }
+  } );
+  
+}
 
+</script>
 
 </body>
 </html>

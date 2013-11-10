@@ -8,15 +8,13 @@
 $( function () { 
 
   $.ajax({
-    url: "/module/japanAPI/get",
+    url: "/module/test/response_async/get",
     dataType: "jsonp",
     data: {
       hoge: 1
     },
     success: function ( data, textStatus, jqXHR ) {
-      $.each( eval( data ), function () { 
-        console.log( this.name );
-      });
+        console.log( data );
     },
     error: function ( jqXHR, textStatus, errorThrown ) {
       alert( textStatus );

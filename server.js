@@ -1,4 +1,5 @@
 var express = require( 'express' );
+var fs = require( 'fs' );
 
 /* Express */
 var app = express.createServer();
@@ -12,48 +13,97 @@ app.use( express.static( __dirname + '/static' ) );
 
 /* Server */
 //Get the environment variables we need.
-var ipaddr  = process.env.OPENSHIFT_NODEJS_IP || "127.0.0.1";
+var ipaddr  = process.env.OPENSHIFT_NODEJS_IP   || "127.0.0.1";
 var port    = process.env.OPENSHIFT_NODEJS_PORT || 8080;
-
+var dataDir = process.env.OPENSHIFT_DATA_DIR    || "./data";
+var moduleDir = dataDir + "/restfuljs";
 
 /* RESTful JS */
 
-app.get( /^\/module\/(.+)\/([^\/]+)$/, function ( req, res ) { 
+/* Make Writable Module Directory */
+try {
+  fs.statSync( moduleDir )
+} catch ( e ) {
+  fs.mkdirSync( moduleDir, 0777 );
+}
+
+/* Wrapper */
+var wrapper = function ( req, res ) { 
 
   var moduleName = req.params[0];
   var method     = req.params[1];
 
-  // cleare cache of RESTful JS
-  for( var path in require.cache ) {
-    if( path.match(/\\node_modules\\restfuljs\\/) ) {
-      delete require.cache[ path ];
-    }
-  }
-
-  // responder
+  // responser
   var responser = {
     send: function ( reply ) {
       if ( req.query.callback ) { // as JSONP
         reply = req.query.callback + "(" + JSON.stringify( reply ) + ");";
       }
       res.send( reply );
+    },
+    redirect: function ( to ) {
+      res.redirect( to );
     }
   }
 
-  var module  = require( "restfuljs/" + moduleName );
+  var module  = require( moduleDir + "/" + moduleName );
   var reply   = module[ method ]( req, responser );
 
   if ( reply ) {
     responser.send( reply );
   }
 
-});
+}
 
-/* document root */
+/* GET & POST Module */
+app.get( /^\/module\/(.+)\/([^\/]+)$/, function ( req, res ) { wrapper( req, res ) } );
+app.post( /^\/module\/(.+)\/([^\/]+)$/, function ( req, res ) { wrapper( req, res ) } );
+
+/* Write Module */
+app.post( /^\/post\/([^\/]+)$/, function ( req, res ) { 
+
+  var moduleName = req.params[0];
+
+  fs.writeFile( moduleDir + "/" + moduleName + ".js", req.body.source, function ( err ) {
+    if (err) {
+      res.send( { status: 0 } ); 
+    }
+    else {
+      res.send( { status: 1 } );
+    }
+  });
+
+  return false;  
+
+} );
+
+/* Check Exist Module */
+
+
+/* Read Module */
+
+
+/* Module Cache Clear */
+app.get( /^\/refresh\/(.+)$/, function ( req, res ) { 
+
+  var moduleName = req.params[0];
+  var pathPattern = new RegExp( moduleDir + "/" + moduleName );
+
+  // clear cache of RESTful JS
+  for( var path in require.cache ) {
+    if( path.match( pathPattern ) ) {
+      delete require.cache[ path ];
+    }
+  }
+
+  res.redirect( '/index.html' );
+
+} );
+
+/* Document Root */
 app.get( '/', function( req, res ) {
   res.redirect( '/index.html' );
-});
+} );
 
-
-// Server Start
+// server start
 app.listen( port, ipaddr );
