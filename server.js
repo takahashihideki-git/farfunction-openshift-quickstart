@@ -5,9 +5,11 @@ var fs = require( 'fs' );
 var app = express.createServer();
 app.use( express.bodyParser() );
 app.use( express.cookieParser() );
-app.use( express.session({
-  secret: "saginomiya"
-}));
+app.use( 
+  express.session( {
+    secret: "saginomiya"
+  } )
+);
 app.use( express.static( __dirname + '/static' ) );
 
 
@@ -16,9 +18,9 @@ app.use( express.static( __dirname + '/static' ) );
 var ipaddr  = process.env.OPENSHIFT_NODEJS_IP   || "127.0.0.1";
 var port    = process.env.OPENSHIFT_NODEJS_PORT || 8080;
 var dataDir = process.env.OPENSHIFT_DATA_DIR    || "./data";
-var moduleDir = dataDir + "/restfuljs";
+var moduleDir = dataDir + "/farfunction";
 
-/* RESTful JS */
+/* Far Function */
 
 /* Make Writable Module Directory */
 try {
@@ -26,8 +28,18 @@ try {
 } catch ( e ) {
   fs.mkdirSync( moduleDir, 0777 );
 }
+/* Make Symbolic Link of "node_modules" on Module Directory */
+try {
+  fs.statSync( moduleDir + "/node_modules" )
+} catch ( e ) {
+  fs.symlinkSync(
+    __dirname + "/node_modules",
+    moduleDir + "/node_modules",
+    "dir"
+  );
+}
 
-/* Wrapper */
+/* Response Wrapper */
 var wrapper = function ( req, res ) { 
 
   var moduleName = req.params[0];
