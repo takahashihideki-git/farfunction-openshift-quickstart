@@ -87,16 +87,17 @@ app.post( /^\/post\/([^\/]+)$/, function ( req, res ) {
 app.get( /^\/refresh\/(.+)$/, function ( req, res ) { 
 
   var moduleName = req.params[0];
-  var pathPattern = new RegExp( moduleDir + "/" + moduleName );
-
-  // clear cache of RESTful JS
-  for( var path in require.cache ) {
-    if( path.match( pathPattern ) ) {
-      delete require.cache[ path ];
-    }
+  var module = require.resolve( moduleDir + "/" + moduleName ); 
+  var status = 1;
+  try {
+    delete require.cache[ module ];
+  } catch ( e ) {
+    status = 0;   
   }
-
-  res.redirect( '/index.html' );
+  res.send( { 
+    status: status,
+    module: module  
+  } );
 
 } );
 
