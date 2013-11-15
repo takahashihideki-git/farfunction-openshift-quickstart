@@ -42,34 +42,27 @@ try {
 /* Response Wrapper */
 var wrapper = function ( req, res ) { 
 
+console.log( res );
+
   var moduleName = req.params[0];
   var method     = req.params[1];
 
   // responser
-  var responser = {
-    send: function ( reply ) {
-      if ( req.query.callback ) { // as JSONP
-        reply = req.query.callback + "(" + JSON.stringify( reply ) + ");";
-      }
-      res.send( reply );
-    },
-    redirect: function ( to ) {
-      res.redirect( to );
+  res.return = function ( reply ) {
+    if ( req.query.callback ) { // as JSONP
+      reply = req.query.callback + "(" + JSON.stringify( reply ) + ");";
     }
+    res.send( reply );
   }
 
   var module  = require( moduleDir + "/" + moduleName );
-  var reply   = module[ method ]( req, responser );
-
-  if ( reply ) {
-    responser.send( reply );
-  }
+  var reply   = module[ method ]( req, res );
 
 }
 
 /* GET & POST Module */
-app.get( /^\/module\/(.+)\/([^\/]+)$/, function ( req, res ) { wrapper( req, res ) } );
-app.post( /^\/module\/(.+)\/([^\/]+)$/, function ( req, res ) { wrapper( req, res ) } );
+app.get( /^\/call\/(.+)\/([^\/]+)$/, function ( req, res ) { wrapper( req, res ) } );
+app.post( /^\/call\/(.+)\/([^\/]+)$/, function ( req, res ) { wrapper( req, res ) } );
 
 /* Write Module */
 app.post( /^\/post\/([^\/]+)$/, function ( req, res ) { 
@@ -90,9 +83,41 @@ app.post( /^\/post\/([^\/]+)$/, function ( req, res ) {
 } );
 
 /* Check Exist Module */
+app.get( /^\/exists\/(.+)$/, function ( req, res ) { 
 
+  var moduleName = req.params[0];
+  var exists = 1;
+
+  try {
+    var module = require.resolve( moduleDir + "/" + moduleName ); 
+  } catch ( e ) {
+    exists = 0;
+  }
+  
+  res.send( { status: exists } );
+
+} );
 
 /* Read Module */
+app.get( /^\/get\/([^\/]+)$/, function ( req, res ) { 
+
+  var moduleName = req.params[0];
+
+  fs.readFile( moduleDir + "/" + moduleName + ".js", "utf8", function ( err, data ) {
+    if (err) {
+      res.send( { status: 0 } ); 
+    }
+    else {
+      res.send( { 
+        status: 1, 
+        source: data
+      } );
+    }
+  });
+
+  return false;  
+
+} );
 
 
 /* Module Cache Clear */

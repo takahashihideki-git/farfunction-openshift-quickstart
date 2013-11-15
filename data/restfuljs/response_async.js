@@ -2,11 +2,7 @@ var request = require("request");
 
 exports.get = function( req, res ) {
 
-console.log( req )
-
-    var requestedUrlRoot = 'http://' + req.headers.host;
-
-console.log( requestedUrlRoot );
+  var requestedUrlRoot = 'http://' + req.headers.host;
 
 	var args = {
 		"method": "GET",

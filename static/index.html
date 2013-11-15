@@ -1,65 +1,80 @@
-<html>
 <head>
-<meta charset="utf-8">
-<title>RESTful JS</title>
-<style>
-body {
-  font-family: sans-serif;
-  line-height: 1.4;
-}
-blockquote {
-  margin: 1em 0;
-  padding: 1em;
-  background-color: #eee;
-}
-textarea {
-  width: 400px;
-  height: 200px;
-}
-</style>
+  <meta charset="UTF-8">
+  <meta id="viewport" name="viewport" content="initial-scale=1.0">
+  <title>Far Function ( js )</title>
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/bootstrap-theme.min.css" rel="stylesheet">
+  <style>
+  .jumbotron {
+    margin-top: 20px;
+  }
+  </style>
 </head>
 <body>
-<h1>RESTful JS</h1>
 
-<form>
-  <table>
-    <tr><td>module name</td><td><input id="name" type="text"></td></tr>
-    <tr><td>source</td><td><textarea id="source"></textarea></td></tr>
-    <tr><td></td><td><input type="button" value="post" onclick="post()"></td></tr>
-  </table>
-</form>
+<div class="container">
 
-<p><a id="moduleUrl" href="javascript:void(0)" target="_blank"></a></p>
+  <div id="content" style="display: block;">
 
-<hr>
+    <div class="jumbotron">
+      <h1>Far Function ( js )</h1>
+      <p>You can post server side javascript functions as node.js module which you can call in RESTful URL.</p>
+    </div>
 
-<p>「RESTful JS」サーバーには、CommonJS 形式で記述された Javascript モジュールを Web フォームからポストすることができます。</p>
+    <form role="form">
+      <div class="form-group">
+        <label for="moduleName">module name</label><br>
+        <input id="moduleName" type="text" value=""><br>
+      </div>
+      <div class="form-group">
+        <input type="button" value="Load" onclick="load()">
+      </div>
 
-<p>そして、ポストされたモジュールがエクスポートしている関数に RESTful な URL でただちにアクセスすることができるようになります。</p>
 
-<p>つまり、シングルファイルでできた小さな"Webアプリケーション"を作ってすぐにホスティングすることができるのです。まるでブログに記事を書いて公開するような感覚で。</p>
+      <div class="form-group">
+        <label for="source">source</label><br>
+        <textarea id="source" rows="20" style="width:100%"></textarea><br>
+      </div>
+      <div class="form-group">
+        <input type="button" value="Save" onclick="save()"></p>
+      </div>
+    </form>
 
-<p>しかしそれは、Webアプリケーションというよりも、"Web関数" とよんだほうがふさわしい何かかもしれません。</p>
+    <hr>
 
-<p>"Web関数"は、ブラウザさえあれば手軽に記述してすぐに実行できるという点で、クライアントサイドで動作する Javascript コードと同じようなものです。
+    <form role="form">
+      <div class="form-group">
+        <label class="radio"><input type="radio" name="method" value="GET" checked="checked">GET</label>
+        <label class="radio"><input type="radio" name="method" value="POST">POST</label> 
+      </div>
+      <div class="form-group">
+        <span id="host"></span>call/&nbsp;<input id="pathModuleName" type="text" placeholder="module name">&nbsp;/&nbsp;<input id="pathMethod" type="text" size="40" placeholder="function name and query parameters"><br>
+      </div>
+      <div class="form-group">
+        <textarea id="requestBody" rows="3" style="width:100%" placeholder="request body"></textarea>
+      </div>
+      <div class="form-group">
+        <input type="button" value="Call" onclick="call()">
+      </div>
+    </form>
 
-<p>ただし、次のような点で大きく異なります。</p>
+    <pre><code id="response">Response</code></pre>
 
-<ol>
-  <li>API Key や OAuth のコンシェーマーキーなどの「実行上の秘密」を利用者に完全に隠しておくことができます。</li>
-  <li>クロスドメイン制約を気にすることなく、他のドメインの API を利用することができます。（ RESTful JS は JSONPによるレスポンスをサポートしています。）</li>
-  <li>ファイルや DB を使えば、マルチデバイス、マルチユーザーで共有できるデータをサーバーサイドに永続化することができます。</li>
-</ol>
+    <hr>
 
-<p>e.g.) http://example.com/module/foo/get?callback=callback</p>
+    <h3 id="savedmodules">Saved Modules</h3>
 
-<p>↓ Request</p>
+    <hr>
 
-<blockquote>
-<pre>
-// root/node_modules/restfuljs/foo.js ( posted from web form )
+    <h3 id="samplemodules">Sample Modules</h3>
 
-var request = require("request");
+    <div style="display: none">
+
+    <p>Request</p>
+
+    <pre><code>//module name = foo
+
+var request = require( "request" );
 
 exports.get = function( req, res ) {
 
@@ -68,20 +83,18 @@ exports.get = function( req, res ) {
     "url": "http://example.com/example.json", // Cross Domain !
   };
   request( args, function( error, response, body ){
-    res.send( body )
+    res.return( body )
   });
 
-  return false;
+};</code></pre>
 
-};
-</pre>
-</blockquote>
+    <p>Call ( JSONP )</p>
 
-<p>↓ Response ( JSONP: As &lt;script&gt; )</p>
+    <pre><code>http://localhost/call/foo/get?callback=callback</code></pre>
 
-<blockquote>
-<pre>
-callback( {
+    <p>Response ( JSONP )</p>
+
+    <pre><code>callback( {
     "title": "Example Schema",
     "type": "object",
     "properties": {
@@ -98,25 +111,89 @@ callback( {
         }
     },
     "required": ["firstName", "lastName"]
-} )
-</pre>
-</blockquote>
+} )</code></pre>
+
+    </div>
+
+<hr>
+
+<h3 id="authenticationsetting">Authentication Setting</h3>
+
+
+<hr>
+<footer><p>@takahashihideki</p></footer>
+
+<!-- /container -->
+</div>
 
 <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
 <script>
 
-var post = function () {
-  
+var load = function () {
+
   $.ajax( {
-    url: "/post/" + $( "#name" ).val(),
-    method: "POST",
-    data: { source: $( "#source" ).val() },
+    url: "/get/" + $( "#moduleName" ).val(),
+    method: "GET",
     success: function ( data ) {
       if ( data.status ) {
-        alert( "saved" );
-        var url = window.location.href + "module/" + $( "#name" ).val(); 
-        $( "#moduleUrl" ).attr( "href", url  );
-        $( "#moduleUrl" ).text( "Module URL:" + url + "/[exported function name]"  );
+        $( "#source" ).val( data.source );
+      }
+      else {
+        alert( "Not Found" );
+      }
+    },
+    error: function ( xhr, status, err ) {
+      alert( status + "\n" + err );
+    }
+  } );
+  
+}
+
+var save = function () {
+
+  var execute  = false;
+
+  if ( exists() ) {
+    if ( confirm( "Overwrite it?" ) ) {
+      execute = true;
+    }
+  }
+  else {
+    execute = true;
+  }
+
+  if ( execute ) {
+
+    $.ajax( {
+      url: "/post/" + $( "#moduleName" ).val(),
+      method: "POST",
+      data: { source: $( "#source" ).val() },
+      success: function ( data ) {
+        if ( data.status ) {
+          alert( "Saved" );
+          refresh();
+        }
+        else {
+          alert( "Error" );
+        }
+      },
+      error: function ( xhr, status, err ) {
+        alert( status + "\n" + err );
+      }
+    } );
+
+  }
+  
+}
+
+var refresh = function () { 
+
+  $.ajax( {
+    url: "/refresh/" + $( "#moduleName" ).val(),
+    method: "GET",
+    success: function ( data ) {
+      if ( data.status ) {
+        alert( "Clear Cache" );
       }
       else {
         alert( "error" );
@@ -128,6 +205,86 @@ var post = function () {
   } );
   
 }
+
+var exists = function () {
+
+  var exist = false;
+
+  $.ajax( {
+    url: "/exists/" + $( "#moduleName" ).val(),
+    method: "GET",
+    async: false,
+    success: function ( data ) {
+      if ( data.status ) {
+        exist = true;        
+      }
+    },
+    error: function ( xhr, status, err ) {
+      alert( status + "\n" + err );
+    }
+  } );
+
+  return exist;
+  
+}
+
+var call = function () {
+
+  var action = "/call/" + $( "#pathModuleName" ).val() + "/" + $( "#pathMethod" ).val();   
+  var method = $( "form" ).eq(1).find( "input[type=radio]:checked" ).val();
+  data = {};
+  if ( method == "POST" ) {
+    data = $.parseParams( $( "#requestBody" ).val() );
+  }
+  
+  $.ajax( {
+    url: action,
+    method: method,
+    async: false,
+    data: data,
+    dataType: "json",
+    success: function ( data ) {
+      $( "#response" ).html( JSON.stringify( data ) );
+    },
+    error: function ( xhr, status, err ) {
+      alert( status + "\n" + err );
+    }
+  } );
+  
+}
+
+
+$( function () {
+
+  $( "#host" ).text( window.location.href );
+
+  $( "#moduleName" ).on( "keyup", function () {
+    $( "#pathModuleName" ).val( $( this ).val() );
+  } );
+
+} );
+
+/**
+ * $.parseParams - parse query string paramaters into an object.
+ * https://gist.github.com/kares/956897
+ */
+(function($) {
+var re = /([^&=]+)=?([^&]*)/g;
+var decodeRE = /\+/g;  // Regex for replacing addition symbol with a space
+var decode = function (str) {return decodeURIComponent( str.replace(decodeRE, " ") );};
+$.parseParams = function(query) {
+    var params = {}, e;
+    while ( e = re.exec(query) ) { 
+        var k = decode( e[1] ), v = decode( e[2] );
+        if (k.substring(k.length - 2) === '[]') {
+            k = k.substring(0, k.length - 2);
+            (params[k] || (params[k] = [])).push(v);
+        }
+        else params[k] = v;
+    }
+    return params;
+};
+})(jQuery);
 
 </script>
 
