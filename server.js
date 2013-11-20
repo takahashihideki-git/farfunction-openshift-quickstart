@@ -91,19 +91,6 @@ app.all( /^\/call\/(.+)\/([^\/]+)$/, function ( req, res ) { wrapper( req, res )
 
 /* Admin Tools */
 
-/* force HTTPS */
-
-app.all( /^\/admin\//, function ( req, res, next ) {
-
-  if ( req.protocol != "https" && ! req.headers.host.match( new RegExp( "^" + localHost ) ) ) {
-    res.redirect( 'https://' + req.headers.host + req.url );  
-  }
-  else {
-    next();
-  }
-
-} );
-
 /* Need Basic Authentication */
 
 app.all( '/admin/*', express.basicAuth( function ( user, pass ) {

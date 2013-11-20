@@ -5,6 +5,9 @@
   <link href="css/bootstrap.min.css" rel="stylesheet">
   <link href="css/bootstrap-theme.min.css" rel="stylesheet">
   <style>
+  body { 
+    display: none;
+  }
   .jumbotron {
     margin-top: 20px;
   }
@@ -284,12 +287,17 @@ $( function () {
     window.location.href = window.location.href.replace( /^http:/, "https:" ); 
     return;
   }
+  else {
 
-  $( "#host" ).text( window.location.href );
+    $( "body" ).show();
 
-  $( "#moduleName" ).on( "keyup", function () {
-    $( "#pathModuleName" ).val( $( this ).val() );
-  } );
+    $( "#host" ).text( window.location.href );
+
+    $( "#moduleName" ).on( "keyup", function () {
+      $( "#pathModuleName" ).val( $( this ).val() );
+    } );
+
+  }
 
 } );
 
