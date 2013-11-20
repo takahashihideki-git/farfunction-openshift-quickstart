@@ -170,7 +170,7 @@ var connectDb = function( callback ){
     if( err ){ throw err };
     mdb = db;
     if ( dbUser ) {
-      self.db.authenticate( dbUser, dbPass, { authdb: "admin" }, function( err, res ){
+      db.authenticate( dbUser, dbPass, { authdb: "admin" }, function( err, res ){
         if( err ){ throw err };
         callback();
       } );
