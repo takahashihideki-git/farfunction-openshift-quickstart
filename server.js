@@ -23,9 +23,9 @@ var moduleDir = dataDir + "/farfunction";
 
 var dbHost  = process.env.OPENSHIFT_MONGODB_DB_HOST || "127.0.0.1";
 var dbPort  = process.env.OPENSHIFT_MONGODB_DB_PORT || 27017;
-var dbName  = "farfunction";
-var dbUser = process.env.OPENSHIFT_MONGODB_DB_USERNAME || "";
-var dbPass = process.env.OPENSHIFT_MONGODB_DB_PASSWORD || "";
+var dbName  = process.env.OPENSHIFT_MONGODB_DB_NAME || "farfunction";
+var dbUser  = process.env.OPENSHIFT_MONGODB_DB_USERNAME || "";
+var dbPass  = process.env.OPENSHIFT_MONGODB_DB_PASSWORD || "";
 
 
 var dbServer = new mongodb.Server( dbHost, parseInt( dbPort ) );
