@@ -1,5 +1,6 @@
 var express = require( 'express' );
 var fs = require( 'fs' );
+var mongodb = require( 'mongodb' );
 
 /* Express */
 var app = express.createServer();
@@ -14,11 +15,21 @@ app.use( express.static( __dirname + '/static' ) );
 
 
 /* Server */
-//Get the environment variables we need.
+// Get the environment variables we need.
 var ipaddr  = process.env.OPENSHIFT_NODEJS_IP   || "127.0.0.1";
 var port    = process.env.OPENSHIFT_NODEJS_PORT || 8080;
 var dataDir = process.env.OPENSHIFT_DATA_DIR    || "./data";
 var moduleDir = dataDir + "/farfunction";
+
+var dbHost  = process.env.OPENSHIFT_MONGODB_DB_HOST || "127.0.0.1";
+var dbPort  = process.env.OPENSHIFT_MONGODB_DB_PORT || 27017;
+var dbName  = "farfunction";
+var dbUser = process.env.OPENSHIFT_MONGODB_DB_USERNAME || "";
+var dbPass = process.env.OPENSHIFT_MONGODB_DB_PASSWORD || "";
+
+
+var dbServer = new mongodb.Server( dbHost, parseInt( dbPort ) );
+var db = new mongodb.Db( dbName, dbServer, { auto_reconnect: true } );
 
 /* Far Function */
 
@@ -42,21 +53,23 @@ try {
 /* Response Wrapper */
 var wrapper = function ( req, res ) { 
 
-console.log( res );
-
   var moduleName = req.params[0];
   var method     = req.params[1];
 
   // responser
   res.return = function ( reply ) {
-    if ( req.query.callback ) { // as JSONP
-      reply = req.query.callback + "(" + JSON.stringify( reply ) + ");";
+    if ( Object.prototype.toString.apply( reply ) == "[object Object]" ) {
+      res.setHeader( 'Content-Type', 'application/json' );
+      if ( req.query.callback ) { // as JSONP
+        res.setHeader( 'Content-Type', 'text/javascript' );
+        reply = req.query.callback + "(" + JSON.stringify( reply ) + ");";
+      }
     }
     res.send( reply );
   }
 
   var module  = require( moduleDir + "/" + moduleName );
-  var reply   = module[ method ]( req, res );
+  var reply   = module[ method ]( req, res, mdb );
 
 }
 
@@ -143,5 +156,33 @@ app.get( '/', function( req, res ) {
   res.redirect( '/index.html' );
 } );
 
-// server start
-app.listen( port, ipaddr );
+/* Rear Guard ! */
+process.on( 'uncaughtException', function ( error ) {
+  console.log( 'error: ' + error );
+});
+
+// server start with mongodb
+
+var mdb;
+
+var connectDb = function( callback ){
+  db.open( function( err, db ){
+    if( err ){ throw err };
+    mdb = db;
+    if ( dbUser ) {
+      self.db.authenticate( dbUser, dbPass, { authdb: "admin" }, function( err, res ){
+        if( err ){ throw err };
+        callback();
+      } );
+    }
+    else {
+      callback();
+    }
+  } );
+};
+
+connectDb( function () { app.listen( port, ipaddr ) } );
+
+
+
+

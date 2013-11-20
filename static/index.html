@@ -48,7 +48,9 @@
         <label class="radio"><input type="radio" name="method" value="POST">POST</label> 
       </div>
       <div class="form-group">
-        <span id="host"></span>call/&nbsp;<input id="pathModuleName" type="text" placeholder="module name">&nbsp;/&nbsp;<input id="pathMethod" type="text" size="40" placeholder="function name and query parameters"><br>
+        <span id="host"></span>call/<br>
+        <input id="pathModuleName" type="text" placeholder="module name" size="40">&nbsp;/<br>
+        <input id="pathMethod" type="text" size="40" placeholder="function name and query parameters">
       </div>
       <div class="form-group">
         <textarea id="requestBody" rows="3" style="width:100%" placeholder="request body"></textarea>
@@ -231,7 +233,7 @@ var exists = function () {
 var call = function () {
 
   var action = "/call/" + $( "#pathModuleName" ).val() + "/" + $( "#pathMethod" ).val();   
-  var method = $( "form" ).eq(1).find( "input[type=radio]:checked" ).val();
+  var method = $( "form" ).eq(1).find( "input[name=method]:checked" ).val();
   data = {};
   if ( method == "POST" ) {
     data = $.parseParams( $( "#requestBody" ).val() );
@@ -242,9 +244,9 @@ var call = function () {
     method: method,
     async: false,
     data: data,
-    dataType: "json",
+    dataType: "text",
     success: function ( data ) {
-      $( "#response" ).html( JSON.stringify( data ) );
+        $( "#response" ).text( data );
     },
     error: function ( xhr, status, err ) {
       alert( status + "\n" + err );
