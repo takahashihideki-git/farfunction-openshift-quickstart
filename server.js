@@ -29,7 +29,7 @@ var dbPass  = process.env.OPENSHIFT_MONGODB_DB_PASSWORD || "";
 
 
 var dbServer = new mongodb.Server( dbHost, parseInt( dbPort ) );
-var db = new mongodb.Db( dbName, dbServer, { auto_reconnect: true } );
+var db = new mongodb.Db( dbName, dbServer, { auto_reconnect: true, safe: false } );
 
 /* Far Function */
 
