@@ -104,7 +104,7 @@
 <!-- /container -->
 </div>
 
-<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+<script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
 <script>
 
 var load = function () {
@@ -279,6 +279,12 @@ var setAuth = function () {
 
 $( function () {
 
+  // force https 127.0.0.1 is developer's local host'
+  if ( window.location.protocol != "https" && ! window.location.host.match( /^127\.0\.0\.1/ )  ) {
+    window.location.href = window.location.href.replace( /^http:/, "https:" ); 
+    return;
+  }
+
   $( "#host" ).text( window.location.href );
 
   $( "#moduleName" ).on( "keyup", function () {
@@ -308,15 +314,6 @@ $.parseParams = function(query) {
     return params;
 };
 } )( jQuery );
-
-$( function () {
-
-  // force https 127.0.0.1 is developer's local host'
-  if ( window.location.protocol != "https" && ! window.location.host.match( /^127\.0\.0\.1/ )  ) {
-    window.location.href = window.location.href.replace( /^http:/, "https:" ); 
-  }
-
-} )
 
 </script>
 
