@@ -16,12 +16,16 @@ app.use( express.static( __dirname + '/static' ) );
 
 /* Server */
 // Get the environment variables we need.
-var ipaddr  = process.env.OPENSHIFT_NODEJS_IP   || "127.0.0.1";
+var localHost = "127.0.0.1"; // for dev
+var ipaddr  = process.env.OPENSHIFT_NODEJS_IP   || localHost;
 var port    = process.env.OPENSHIFT_NODEJS_PORT || 8080;
 var dataDir = process.env.OPENSHIFT_DATA_DIR    || "./data";
 var moduleDir = dataDir + "/farfunction";
+var authUsername = "admin";
+var authPassword = "admin";
+var authFile = dataDir + "/.auth";
 
-var dbHost  = process.env.OPENSHIFT_MONGODB_DB_HOST || "127.0.0.1";
+var dbHost  = process.env.OPENSHIFT_MONGODB_DB_HOST || localHost;
 var dbPort  = process.env.OPENSHIFT_MONGODB_DB_PORT || 27017;
 var dbName  = process.env.OPENSHIFT_MONGODB_DB_NAME || "farfunction";
 var dbUser  = process.env.OPENSHIFT_MONGODB_DB_USERNAME || "";
@@ -50,6 +54,15 @@ try {
   );
 }
 
+/* Get Authentication Setting */
+fs.readFile( authFile, "utf8", function ( err, data ) {
+  if ( ! err ) {
+    var lines = data.split( /\n/ );
+    authUsername = lines[ 0 ];
+    authPassword = lines[ 1 ];
+  }
+} );
+
 /* Response Wrapper */
 var wrapper = function ( req, res ) { 
 
@@ -74,11 +87,33 @@ var wrapper = function ( req, res ) {
 }
 
 /* GET & POST Module */
-app.get( /^\/call\/(.+)\/([^\/]+)$/, function ( req, res ) { wrapper( req, res ) } );
-app.post( /^\/call\/(.+)\/([^\/]+)$/, function ( req, res ) { wrapper( req, res ) } );
+app.all( /^\/call\/(.+)\/([^\/]+)$/, function ( req, res ) { wrapper( req, res ) } );
+
+/* Admin Tools */
+
+/* force HTTPS */
+
+app.all( /^\/admin\//, function ( req, res, next ) {
+
+  if ( req.protocol != "https" && ! req.headers.host.match( new RegExp( "^" + localHost ) ) ) {
+    res.redirect( 'https://' + req.headers.host + req.url );  
+  }
+  else {
+    next();
+  }
+
+} );
+
+/* Need Basic Authentication */
+
+app.all( '/admin/*', express.basicAuth( function ( user, pass ) {
+
+    return user === authUsername && pass === authPassword;
+
+}));
 
 /* Write Module */
-app.post( /^\/post\/([^\/]+)$/, function ( req, res ) { 
+app.post( /^\/admin\/post\/([^\/]+)$/, function ( req, res ) { 
 
   var moduleName = req.params[0];
 
@@ -89,14 +124,14 @@ app.post( /^\/post\/([^\/]+)$/, function ( req, res ) {
     else {
       res.send( { status: 1 } );
     }
-  });
+  } );
 
   return false;  
 
 } );
 
 /* Check Exist Module */
-app.get( /^\/exists\/(.+)$/, function ( req, res ) { 
+app.get( /^\/admin\/exists\/(.+)$/, function ( req, res ) { 
 
   var moduleName = req.params[0];
   var exists = 1;
@@ -112,12 +147,12 @@ app.get( /^\/exists\/(.+)$/, function ( req, res ) {
 } );
 
 /* Read Module */
-app.get( /^\/get\/([^\/]+)$/, function ( req, res ) { 
+app.get( /^\/admin\/get\/([^\/]+)$/, function ( req, res ) { 
 
   var moduleName = req.params[0];
 
   fs.readFile( moduleDir + "/" + moduleName + ".js", "utf8", function ( err, data ) {
-    if (err) {
+    if ( err ) {
       res.send( { status: 0 } ); 
     }
     else {
@@ -126,7 +161,7 @@ app.get( /^\/get\/([^\/]+)$/, function ( req, res ) {
         source: data
       } );
     }
-  });
+  } );
 
   return false;  
 
@@ -134,7 +169,7 @@ app.get( /^\/get\/([^\/]+)$/, function ( req, res ) {
 
 
 /* Module Cache Clear */
-app.get( /^\/refresh\/(.+)$/, function ( req, res ) { 
+app.get( /^\/admin\/refresh\/(.+)$/, function ( req, res ) { 
 
   var moduleName = req.params[0];
   var module = require.resolve( moduleDir + "/" + moduleName ); 
@@ -151,15 +186,30 @@ app.get( /^\/refresh\/(.+)$/, function ( req, res ) {
 
 } );
 
-/* Document Root */
-app.get( '/', function( req, res ) {
-  res.redirect( '/index.html' );
+/* Set Authentication  */
+app.post( /^\/admin\/setAuth/, function ( req, res ) {
+
+  var auth = req.body.username + "\n" + req.body.password;
+
+  fs.writeFile( authFile, auth, function ( err ) {
+    if ( err ) {
+      res.send( { status: 0 } ); 
+    }
+    else {
+      authUsername = req.body.username;
+      authPassword = req.body.password;
+      res.send( { status: 1 } );
+    }
+  } );
+
+  return false;  
+  
 } );
 
 /* Rear Guard ! */
 process.on( 'uncaughtException', function ( error ) {
   console.log( 'error: ' + error );
-});
+} );
 
 // server start with mongodb
 
