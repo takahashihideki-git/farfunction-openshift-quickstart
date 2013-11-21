@@ -105,7 +105,7 @@ app.post( /^\/admin\/post\/([^\/]+)$/, function ( req, res ) {
   var moduleName = req.params[0];
 
   fs.writeFile( moduleDir + "/" + moduleName + ".js", req.body.source, function ( err ) {
-    if (err) {
+    if ( err ) {
       res.send( { status: 0 } ); 
     }
     else {
@@ -153,6 +153,39 @@ app.get( /^\/admin\/get\/([^\/]+)$/, function ( req, res ) {
   return false;  
 
 } );
+
+/* List Modules */
+app.get( /^\/admin\/list$/, function ( req, res ) {
+
+  fs.readdir( moduleDir, function ( err, files ) {
+    if ( err ) {
+      res.send( { status: 0 } ); 
+    }
+    else {
+      res.send( files );
+    }
+  } );
+  
+} );
+
+/* Remove Module */
+app.get( /^\/admin\/delete\/([^\/]+)$/, function ( req, res ) { 
+
+  var moduleName = req.params[0];
+
+  fs.unlink( moduleDir + "/" + moduleName + ".js", function ( err ) {
+    if ( err ) {
+      res.send( { status: 0 } ); 
+    }
+    else {
+      res.send( { status: 1 } );
+    }
+  } );
+
+  return false;  
+
+} );
+
 
 
 /* Module Cache Clear */

@@ -11,6 +11,15 @@
   .jumbotron {
     margin-top: 20px;
   }
+  #moduleList ul {
+    margin-left: 0;
+    padding-left: 0;
+    list-style: none;
+  }
+  #moduleList ul li {
+    display: inline;
+    padding-right: 1em;
+  }
   </style>
 </head>
 <body>
@@ -31,6 +40,7 @@
       </div>
       <div class="form-group">
         <input type="button" value="Load" onclick="load()">
+        <input type="button" value="Remove" onclick="rm()">
       </div>
 
 
@@ -68,6 +78,8 @@
     <hr>
 
     <h3 id="savedmodules">Saved Modules</h3>
+
+    <div id="moduleList" ></div>
 
     <hr>
 
@@ -129,6 +141,37 @@ var load = function () {
   } );
   
 }
+
+var rm = function () {
+
+  var moduleName = $( "#moduleName" ).val();
+
+  if ( moduleName && confirm( "Remove " + moduleName + "?" ) ) {
+
+    $.ajax( {
+
+      url: "/admin/delete/" + moduleName,
+      method: "GET",
+      success: function ( data ) {
+        if ( data.status ) {
+          alert( "Removed" );
+          $( "#moduleName" ).val( "" );
+          $( "#source" ).val( "" );
+          $( "#pathModuleName" ).val( "" );
+        }
+        else {
+          alert( "Not Found" );
+        }
+      },
+      error: function ( xhr, status, err ) {
+        alert( status + "\n" + err );
+      }
+    } );
+
+  }
+  
+}
+
 
 var save = function () {
 
@@ -234,6 +277,40 @@ var call = function () {
   
 }
 
+var list = function () {
+  
+  $.ajax( {
+    url: "/admin/list",
+    method: "GET",
+    dataType: "json",
+    success: function ( data ) {
+      var lis = "";
+      $.each( data, function ( i ) {
+        if ( this.match( /\.js$/ ) ) {
+          lis += "<li><a href='javascript:void( 0 )'>" + this.replace( /\.js$/, "" ) + "</a></li>"
+        }
+      } );
+      $( "#moduleList" ).append( "<ul>" + lis + "</ul>" );
+      $.each( $( "#moduleList a" ), function () { 
+        $( this ).on( "click", function () {
+          select( $( this ).text() );
+        } );
+      } );
+    },
+    error: function ( xhr, status, err ) {
+      alert( status + "\n" + err );
+    }
+  } );
+  
+}
+
+var select = function ( moduleName ) {
+  $( "#moduleName" ).val( moduleName );
+  $( "#pathModuleName" ).val( moduleName ); 
+  load();
+  $( document ).scrollTop( $( ".jumbotron" ).eq( 0 ).outerHeight() );
+}
+
 var setAuth = function () {
 
   var username = $( "#username" ).val();
@@ -242,7 +319,6 @@ var setAuth = function () {
 
   if ( ! username.match( /^[\x20-\x7E]+$/ ) ) {
     alert( "username is invalid: ascii characters only" );
-    
   }
 
   if ( ! username || ! password ) {
@@ -296,6 +372,8 @@ $( function () {
     $( "#moduleName" ).on( "keyup", function () {
       $( "#pathModuleName" ).val( $( this ).val() );
     } );
+
+    list();
 
   }
 
