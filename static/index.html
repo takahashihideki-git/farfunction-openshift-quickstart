@@ -211,7 +211,7 @@ var exists = function () {
 
 var call = function () {
 
-  var action = "/admin/call/" + $( "#pathModuleName" ).val() + "/" + $( "#pathMethod" ).val();   
+  var action = "/call/" + $( "#pathModuleName" ).val() + "/" + $( "#pathMethod" ).val();   
   var method = $( "form" ).eq(1).find( "input[name=method]:checked" ).val();
   data = {};
   if ( method == "POST" ) {
