@@ -20,6 +20,11 @@
     display: inline;
     padding-right: 1em;
   }
+  #spin {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
   </style>
 </head>
 <body>
@@ -119,10 +124,16 @@
 <!-- /container -->
 </div>
 
-<script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
+<div id="spin"></div>
+
+<script src="js/jquery.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/spin.min.js"></script>
 <script>
 
 var load = function () {
+
+  spinner.start();
 
   $.ajax( {
     url: "/admin/get/" + $( "#moduleName" ).val(),
@@ -130,19 +141,24 @@ var load = function () {
     success: function ( data ) {
       if ( data.status ) {
         $( "#source" ).val( data.source );
+        spinner.stop();
       }
       else {
         alert( "Not Found" );
+        spinner.stop();
       }
     },
     error: function ( xhr, status, err ) {
       alert( status + "\n" + err );
+      spinner.stop();
     }
   } );
   
 }
 
 var rm = function () {
+
+  spinner.start();
 
   var moduleName = $( "#moduleName" ).val();
 
@@ -154,26 +170,34 @@ var rm = function () {
       method: "GET",
       success: function ( data ) {
         if ( data.status ) {
-          alert( "Removed" );
           $( "#moduleName" ).val( "" );
           $( "#source" ).val( "" );
           $( "#pathModuleName" ).val( "" );
+          list();
+          spinner.stop();
         }
         else {
           alert( "Not Found" );
+          spinner.stop();
         }
       },
       error: function ( xhr, status, err ) {
         alert( status + "\n" + err );
+        spinner.stop();
       }
     } );
 
+  }
+  else {
+    spinner.stop();
   }
   
 }
 
 
 var save = function () {
+
+  spinner.start();
 
   var execute  = false;
 
@@ -194,37 +218,48 @@ var save = function () {
       data: { source: $( "#source" ).val() },
       success: function ( data ) {
         if ( data.status ) {
-          alert( "Saved" );
+          list();
           refresh();
         }
         else {
           alert( "Error" );
+          spinner.stop();
         }
       },
       error: function ( xhr, status, err ) {
         alert( status + "\n" + err );
+          spinner.stop();
       }
     } );
 
+  }
+  else {
+    spinner.stop();
   }
   
 }
 
 var refresh = function () { 
 
+  if ( ! spinner.isSpinning ) {
+    spinner.start();
+  }
+
   $.ajax( {
     url: "/admin/refresh/" + $( "#moduleName" ).val(),
     method: "GET",
     success: function ( data ) {
       if ( data.status ) {
-        alert( "Clear Cache" );
+        spinner.stop();
       }
       else {
         alert( "error" );
-      }
+        spinner.stop();
+     }
     },
     error: function ( xhr, status, err ) {
       alert( status + "\n" + err );
+      spinner.stop();
     }
   } );
   
@@ -254,6 +289,8 @@ var exists = function () {
 
 var call = function () {
 
+  spinner.start();
+
   var action = "/call/" + $( "#pathModuleName" ).val() + "/" + $( "#pathMethod" ).val();   
   var method = $( "form" ).eq(1).find( "input[name=method]:checked" ).val();
   data = {};
@@ -269,15 +306,19 @@ var call = function () {
     dataType: "text",
     success: function ( data ) {
         $( "#response" ).text( data );
+        spinner.stop();
     },
     error: function ( xhr, status, err ) {
       alert( status + "\n" + err );
+      spinner.stop();
     }
   } );
   
 }
 
 var list = function () {
+
+  $( "#moduleList" ).empty();
   
   $.ajax( {
     url: "/admin/list",
@@ -305,10 +346,10 @@ var list = function () {
 }
 
 var select = function ( moduleName ) {
+  $( document ).scrollTop( $( ".jumbotron" ).eq( 0 ).outerHeight() );
   $( "#moduleName" ).val( moduleName );
   $( "#pathModuleName" ).val( moduleName ); 
   load();
-  $( document ).scrollTop( $( ".jumbotron" ).eq( 0 ).outerHeight() );
 }
 
 var setAuth = function () {
@@ -319,6 +360,7 @@ var setAuth = function () {
 
   if ( ! username.match( /^[\x20-\x7E]+$/ ) ) {
     alert( "username is invalid: ascii characters only" );
+    return false;
   }
 
   if ( ! username || ! password ) {
@@ -330,6 +372,8 @@ var setAuth = function () {
     alert( "passwords do not match." );
     return false;
   }
+
+  spinner.start();
 
   var action = "/admin/setAuth";   
 
@@ -343,18 +387,68 @@ var setAuth = function () {
     },
     success: function ( data ) {
       if ( data.status ) {
-        alert( "Success" );
+        spinner.stop();
       }
       else {
         alert( "Failed to set" );
+        spinner.stop();
       }
     },
     error: function ( xhr, status, err ) {
       alert( status + "\n" + err );
+      spinner.stop();
     }
   } );
   
 }
+
+var ModalSpinner = function ( containerID ) {
+
+  this.container = $( "#" + containerID );
+
+  this.spinner = new Spinner( {
+    lines: 13, // The number of lines to draw
+    length: 7, // The length of each line
+    width: 3, // The line thickness
+    radius: 8, // The radius of the inner circle
+    corners: 1, // Corner roundness (0..1)
+    rotate: 0, // The rotation offset
+    direction: 1, // 1: clockwise, -1: counterclockwise
+    color: '#000', // #rgb or #rrggbb or array of colors
+    speed: 1, // Rounds per second
+    trail: 52, // Afterglow percentage
+    shadow: false, // Whether to render a shadow
+    hwaccel: false, // Whether to use hardware acceleration
+    className: 'spinner', // The CSS class to assign to the spinner
+    zIndex: 2e9, // The z-index (defaults to 2000000000)
+    top: 'auto', // Top position relative to parent in px
+    left: 'auto' // Left position relative to parent in px
+  } );
+
+} 
+ModalSpinner.prototype = {
+  container: null,
+  spinner: null,
+  isSpinning: false,
+  start: function () {
+    $( this.container ).css( "top", $( document ).scrollTop() + ( window.innerHeight - 11 ) / 2 );
+    $( this.container ).css( "left", ( window.innerWidth - 11 ) / 2 );
+    $( this.container ).modal( "show" );
+    this.spinner.spin( $( this.container )[ 0 ] );
+    this.isSpinning = true;
+  },
+  stop: function () {
+    var spinner = this;
+    setTimeout( function () { spinner.doStop() }, 500 )
+  },
+  doStop: function () {
+    this.spinner.stop();
+    $( this.container ).modal( "hide" );
+    this.isSpinning = false;
+  }
+}
+
+var spinner = null;
 
 $( function () {
 
@@ -372,6 +466,8 @@ $( function () {
     $( "#moduleName" ).on( "keyup", function () {
       $( "#pathModuleName" ).val( $( this ).val() );
     } );
+
+    spinner = new ModalSpinner( "spin" );
 
     list();
 

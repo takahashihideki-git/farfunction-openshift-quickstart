@@ -124,7 +124,7 @@ app.get( /^\/admin\/exists\/(.+)$/, function ( req, res ) {
   var exists = 1;
 
   try {
-    var module = require.resolve( moduleDir + "/" + moduleName ); 
+    fs.statSync( moduleDir + "/" + moduleName + ".js" ); 
   } catch ( e ) {
     exists = 0;
   }
