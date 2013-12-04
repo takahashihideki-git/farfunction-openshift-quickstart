@@ -44,8 +44,8 @@
         <input id="moduleName" type="text" value=""><br>
       </div>
       <div class="form-group">
-        <input type="button" value="Load" onclick="load()">
-        <input type="button" value="Remove" onclick="rm()">
+        <input type="button" value="Load" onclick="modal.execute( load )">
+        <input type="button" value="Remove" onclick="modal.execute( rm )">
       </div>
 
 
@@ -54,7 +54,7 @@
         <textarea id="source" rows="20" style="width:100%"></textarea><br>
       </div>
       <div class="form-group">
-        <input type="button" value="Save" onclick="save()"></p>
+        <input type="button" value="Save" onclick="modal.execute( save )"></p>
       </div>
     </form>
 
@@ -74,7 +74,7 @@
         <textarea id="requestBody" rows="3" style="width:100%" placeholder="request body"></textarea>
       </div>
       <div class="form-group">
-        <input type="button" value="Call" onclick="call()">
+        <input type="button" value="Call" onclick="modal.execute( call )">
       </div>
     </form>
 
@@ -82,37 +82,143 @@
 
     <hr>
 
-    <h3 id="savedmodules">Saved Modules</h3>
-
-    <div id="moduleList" ></div>
+    <div id="savedmodules">
+      <h3>
+        <a data-toggle="collapse" data-parent="#samplemodules" href="#moduleList">Saved Modules</a>
+      </h3>
+     <div id="moduleList" class="panel-collapse collapse"></div>
+    </div>
 
     <hr>
 
-    <h3 id="samplemodules">Sample Modules</h3>
+    <div id="samplemodules">
+      <h3>
+        <a data-toggle="collapse" data-parent="#samplemodules" href="#sampleModuleList">Sample Modules</a>
+      </h3>
+      <div id="sampleModuleList" class="panel-collapse collapse">
+
+      <h4>Hello World!</h4>
+
+<pre><code>  exports.func1 = function ( request, response ) {
+  
+    response.return( { text: "Hello World!" } );
+  
+  }
+  
+  exports.func2 = function ( request, response ) {
+  
+      response.return( "&lt;html&gt;&lt;body&gt;&lt;h1&gt;Hello World!&lt;/h1&gt;&lt;/body&gt;&lt;/html&gt;" );
+  
+  }
+    
+  // e.g.
+  // module name: helloworld
+  
+  // url: http://example.com/call/helloworld/func1
+  // response body is JSON: { "text": "Hello World"}
+  
+  // url: http://example.com/call/helloworld/func1?callback=cb
+  // response body is JSONP: cb( { "text": "Hello World"} )
+
+  // url: http://example.com/call/helloworld/func2
+  // response body is HTML:&lt;html&gt;&lt;body&gt;&lt;h1&gt;Hello World!&lt;/h1&gt;&lt;/body&gt;&lt;/html&gt;
+</code></pre>
+
+    <h4>In the <a href="http://expressjs.com/">express</a></h4>
+
+<pre><code>  // The "request" and "response" parameter is an object in express ( response.return method is extension by far function ).
+
+  // get query parameters of GET request
+  exports.func1 = function ( request, response ) {
+
+    response.return( { text: request.query.text } );
+
+  }
+
+  // get parameters in request body of POST request
+  exports.func2 = function ( request, response ) {
+
+    response.return( { text: request.body.text } );
+
+  }
+</code></pre>
+
+    <h4>With the <a href="http://mongodb.github.io/node-mongodb-native/">mongodb</a></h4>
+
+<pre><code>  // the "db" parameter is mongodb handler. 
+
+  exports.insert = function ( request, response, db ) {
+  
+    var collection = db.collection( "test" );
+    collection.insert( { text: req.query.text }, function ( err, result ) {
+      if ( err ) {
+        res.return( { status: 0, error: err } );
+      }
+      else {
+        res.return( { status: 1, result: result } );
+      }
+    } );
+  
+  }
+  
+  exports.find = function ( requst, response, db ) {
+  
+    var collection = db.collection( "test" );
+  
+    collection.find().toArray( function( err, docs ) {
+      response.return( docs );
+    } );
+  
+  }
+</code></pre>
+
+
+    <h4>You can load some useful modules.</h4>
+
+<pre><code>  // <a href="https://github.com/mikeal/request">request</a>
+  var request = require( "request" );
+  // <a href="https://github.com/Leonidas-from-XIV/node-xml2js">xml2js</a>
+  var parseXML = require( "xml2js" ).parseString;
+  // <a href="https://github.com/cho45/node-here.js">here</a>
+  var here = require( 'here' ).here;
+  // <a href="https://github.com/visionmedia/ejs">ejs</a>
+  var ejs = require( 'ejs' );
+</code></pre>
+
+      </div>      
+    </div>
 
     <hr>
 
-    <h3 id="authenticationsetting">Authentication Setting</h3>
+    <div id="authenticationSetting">
+      <h3>
+        <a data-toggle="collapse" data-parent="#authenticationSetting" href="#authenticationSettingForm">Authentication Setting</a>
+      </h3>
+      <div id="authenticationSettingForm" class="panel-collapse collapse">
+        <form role="form">
 
-    <form role="form">
+          <div class="form-group">
+            <input id="username" type="text" value="" placeholder="new username"><br>
+          </div>
 
-      <div class="form-group">
-        <input id="username" type="text" value="" placeholder="new username"><br>
+          <div class="form-group">
+            <input id="password" type="password" value="" placeholder="new password"><br>
+          </div>
+
+          <div class="form-group">
+            <input id="rePassword" type="password" value="" placeholder="retype new password"><br>
+          </div>
+
+          <div class="form-group">
+            <input type="button" value="Set" onclick="modal.execute( setAuth )">
+          </div>
+
+        </form>
+
+        <div class="alert alert-warning">For Openshift: Authentication The above information will be stored in <em>app-root/data/.auth</em>. You can check by connecting with <a href="https://www.openshift.com/developers/remote-access">SSH</a>.</div>
+        
       </div>
-
-      <div class="form-group">
-        <input id="password" type="password" value="" placeholder="new password"><br>
-      </div>
-
-      <div class="form-group">
-        <input id="rePassword" type="password" value="" placeholder="retype new password"><br>
-      </div>
-
-      <div class="form-group">
-        <input type="button" value="Set" onclick="setAuth()">
-      </div>
-
-    </form>
+    </div>
 
     <hr>
 
@@ -133,32 +239,26 @@
 
 var load = function () {
 
-  spinner.start();
-
   $.ajax( {
     url: "/admin/get/" + $( "#moduleName" ).val(),
     method: "GET",
+    async: false,
     success: function ( data ) {
       if ( data.status ) {
         $( "#source" ).val( data.source );
-        spinner.stop();
       }
       else {
         alert( "Not Found" );
-        spinner.stop();
       }
     },
     error: function ( xhr, status, err ) {
       alert( status + "\n" + err );
-      spinner.stop();
     }
   } );
   
 }
 
 var rm = function () {
-
-  spinner.start();
 
   var moduleName = $( "#moduleName" ).val();
 
@@ -168,36 +268,29 @@ var rm = function () {
 
       url: "/admin/delete/" + moduleName,
       method: "GET",
+      async: false,
       success: function ( data ) {
         if ( data.status ) {
           $( "#moduleName" ).val( "" );
           $( "#source" ).val( "" );
           $( "#pathModuleName" ).val( "" );
           list();
-          spinner.stop();
         }
         else {
           alert( "Not Found" );
-          spinner.stop();
         }
       },
       error: function ( xhr, status, err ) {
         alert( status + "\n" + err );
-        spinner.stop();
       }
     } );
 
-  }
-  else {
-    spinner.stop();
   }
   
 }
 
 
 var save = function () {
-
-  spinner.start();
 
   var execute  = false;
 
@@ -215,6 +308,7 @@ var save = function () {
     $.ajax( {
       url: "/admin/post/" + $( "#moduleName" ).val(),
       method: "POST",
+      async: false,
       data: { source: $( "#source" ).val() },
       success: function ( data ) {
         if ( data.status ) {
@@ -223,43 +317,30 @@ var save = function () {
         }
         else {
           alert( "Error" );
-          spinner.stop();
         }
       },
       error: function ( xhr, status, err ) {
         alert( status + "\n" + err );
-          spinner.stop();
       }
     } );
 
-  }
-  else {
-    spinner.stop();
   }
   
 }
 
 var refresh = function () { 
 
-  if ( ! spinner.isSpinning ) {
-    spinner.start();
-  }
-
   $.ajax( {
     url: "/admin/refresh/" + $( "#moduleName" ).val(),
     method: "GET",
+    async: false,
     success: function ( data ) {
-      if ( data.status ) {
-        spinner.stop();
-      }
-      else {
+      if ( ! data.status ) {
         alert( "error" );
-        spinner.stop();
      }
     },
     error: function ( xhr, status, err ) {
       alert( status + "\n" + err );
-      spinner.stop();
     }
   } );
   
@@ -289,8 +370,6 @@ var exists = function () {
 
 var call = function () {
 
-  spinner.start();
-
   var action = "/call/" + $( "#pathModuleName" ).val() + "/" + $( "#pathMethod" ).val();   
   var method = $( "form" ).eq(1).find( "input[name=method]:checked" ).val();
   data = {};
@@ -306,11 +385,9 @@ var call = function () {
     dataType: "text",
     success: function ( data ) {
         $( "#response" ).text( data );
-        spinner.stop();
     },
     error: function ( xhr, status, err ) {
       alert( status + "\n" + err );
-      spinner.stop();
     }
   } );
   
@@ -324,6 +401,7 @@ var list = function () {
     url: "/admin/list",
     method: "GET",
     dataType: "json",
+    async: false,
     success: function ( data ) {
       var lis = "";
       $.each( data, function ( i ) {
@@ -349,7 +427,7 @@ var select = function ( moduleName ) {
   $( document ).scrollTop( $( ".jumbotron" ).eq( 0 ).outerHeight() );
   $( "#moduleName" ).val( moduleName );
   $( "#pathModuleName" ).val( moduleName ); 
-  load();
+  modal.execute( load );
 }
 
 var setAuth = function () {
@@ -373,8 +451,6 @@ var setAuth = function () {
     return false;
   }
 
-  spinner.start();
-
   var action = "/admin/setAuth";   
 
   $.ajax( {
@@ -386,17 +462,12 @@ var setAuth = function () {
       password: password
     },
     success: function ( data ) {
-      if ( data.status ) {
-        spinner.stop();
-      }
-      else {
+      if ( ! data.status ) {
         alert( "Failed to set" );
-        spinner.stop();
       }
     },
     error: function ( xhr, status, err ) {
       alert( status + "\n" + err );
-      spinner.stop();
     }
   } );
   
@@ -448,11 +519,24 @@ ModalSpinner.prototype = {
   }
 }
 
-var spinner = null;
+
+var Modal = function ( spinner ) {
+  this.spinner = spinner;
+}
+Modal.prototype = {
+  spinner: null,
+  execute: function ( f ) {
+    this.spinner.start();
+    f();
+    this.spinner.stop();
+  }
+}
+
+var modal = null;
 
 $( function () {
 
-  // force https 127.0.0.1 is developer's local host'
+  // force https (127.0.0.1 is developer's local host)
   if ( window.location.protocol != "https:" && ! window.location.host.match( /^127\.0\.0\.1/ )  ) {
     window.location.href = window.location.href.replace( /^http:/, "https:" ); 
     return;
@@ -467,9 +551,9 @@ $( function () {
       $( "#pathModuleName" ).val( $( this ).val() );
     } );
 
-    spinner = new ModalSpinner( "spin" );
+    modal = new Modal( new ModalSpinner( "spin" ) );
 
-    list();
+    modal.execute( list );
 
   }
 
