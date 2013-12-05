@@ -8,6 +8,9 @@
   body { 
     display: none;
   }
+  input {
+    margin: 1px 0;
+  }
   .jumbotron {
     margin-top: 20px;
   }
@@ -86,7 +89,9 @@
       <h3>
         <a data-toggle="collapse" data-parent="#samplemodules" href="#moduleList">Saved Modules</a>
       </h3>
-     <div id="moduleList" class="panel-collapse collapse"></div>
+      <div id="moduleList" class="panel-collapse collapse">
+        <div class="panel-body"></div>
+      </div>
     </div>
 
     <hr>
@@ -96,93 +101,93 @@
         <a data-toggle="collapse" data-parent="#samplemodules" href="#sampleModuleList">Sample Modules</a>
       </h3>
       <div id="sampleModuleList" class="panel-collapse collapse">
+        <div class="panel-body">
 
-      <h4>Hello World!</h4>
+          <h4>Hello World!</h4>
 
-<pre><code>  exports.func1 = function ( request, response ) {
-  
-    response.return( { text: "Hello World!" } );
-  
-  }
-  
-  exports.func2 = function ( request, response ) {
-  
-      response.return( "&lt;html&gt;&lt;body&gt;&lt;h1&gt;Hello World!&lt;/h1&gt;&lt;/body&gt;&lt;/html&gt;" );
-  
-  }
-    
-  // e.g.
-  // module name: helloworld
-  
-  // url: http://example.com/call/helloworld/func1
-  // response body is JSON: { "text": "Hello World"}
-  
-  // url: http://example.com/call/helloworld/func1?callback=cb
-  // response body is JSONP: cb( { "text": "Hello World"} )
+<pre><code>exports.func1 = function ( request, response ) {
 
-  // url: http://example.com/call/helloworld/func2
-  // response body is HTML:&lt;html&gt;&lt;body&gt;&lt;h1&gt;Hello World!&lt;/h1&gt;&lt;/body&gt;&lt;/html&gt;
+  response.return( { text: "Hello World!" } );
+
+}
+
+exports.func2 = function ( request, response ) {
+
+    response.return( "&lt;html&gt;&lt;body&gt;&lt;h1&gt;Hello World!&lt;/h1&gt;&lt;/body&gt;&lt;/html&gt;" );
+
+}
+  
+// e.g.
+// module name: helloworld
+
+// url: http://example.com/call/helloworld/func1
+// response body is JSON: { "text": "Hello World"}
+
+// url: http://example.com/call/helloworld/func1?callback=cb
+// response body is JSONP: cb( { "text": "Hello World"} )
+
+// url: http://example.com/call/helloworld/func2
+// response body is HTML:&lt;html&gt;&lt;body&gt;&lt;h1&gt;Hello World!&lt;/h1&gt;&lt;/body&gt;&lt;/html&gt;
 </code></pre>
 
-    <h4>In the <a href="http://expressjs.com/">express</a></h4>
+        <h4>In the <a href="http://expressjs.com/">express</a></h4>
 
-<pre><code>  // The "request" and "response" parameter is an object in express ( response.return method is extension by far function ).
+<pre><code>// The "request" and "response" parameter is an object in express ( response.return method is extension by far function ).
 
-  // get query parameters of GET request
-  exports.func1 = function ( request, response ) {
+// get query parameters of GET request
+exports.func1 = function ( request, response ) {
 
-    response.return( { text: request.query.text } );
+  response.return( { text: request.query.text } );
 
-  }
+}
 
-  // get parameters in request body of POST request
-  exports.func2 = function ( request, response ) {
+// get parameters in request body of POST request
+exports.func2 = function ( request, response ) {
 
-    response.return( { text: request.body.text } );
+  response.return( { text: request.body.text } );
 
-  }
+}
 </code></pre>
 
-    <h4>With the <a href="http://mongodb.github.io/node-mongodb-native/">mongodb</a></h4>
+      <h4>With the <a href="http://mongodb.github.io/node-mongodb-native/">mongodb</a></h4>
 
-<pre><code>  // the "db" parameter is mongodb handler. 
+<pre><code>// the "db" parameter is mongodb handler. 
 
-  exports.insert = function ( request, response, db ) {
-  
-    var collection = db.collection( "test" );
-    collection.insert( { text: req.query.text }, function ( err, result ) {
-      if ( err ) {
-        res.return( { status: 0, error: err } );
-      }
-      else {
-        res.return( { status: 1, result: result } );
-      }
-    } );
-  
-  }
-  
-  exports.find = function ( requst, response, db ) {
-  
-    var collection = db.collection( "test" );
-  
-    collection.find().toArray( function( err, docs ) {
-      response.return( docs );
-    } );
-  
-  }
+exports.insert = function ( request, response, db ) {
+
+  var collection = db.collection( "test" );
+  collection.insert( { text: req.query.text }, function ( err, result ) {
+    if ( err ) {
+      res.return( { status: 0, error: err } );
+    }
+    else {
+      res.return( { status: 1, result: result } );
+    }
+  } );
+
+}
+
+exports.find = function ( requst, response, db ) {
+
+  var collection = db.collection( "test" );
+
+  collection.find().toArray( function( err, docs ) {
+    response.return( docs );
+  } );
+
+}
 </code></pre>
 
+        <h4>You can load some useful modules.</h4>
 
-    <h4>You can load some useful modules.</h4>
-
-<pre><code>  // <a href="https://github.com/mikeal/request">request</a>
-  var request = require( "request" );
-  // <a href="https://github.com/Leonidas-from-XIV/node-xml2js">xml2js</a>
-  var parseXML = require( "xml2js" ).parseString;
-  // <a href="https://github.com/cho45/node-here.js">here</a>
-  var here = require( 'here' ).here;
-  // <a href="https://github.com/visionmedia/ejs">ejs</a>
-  var ejs = require( 'ejs' );
+<pre><code>// <a href="https://github.com/mikeal/request">request</a>
+var request = require( "request" );
+// <a href="https://github.com/Leonidas-from-XIV/node-xml2js">xml2js</a>
+var parseXML = require( "xml2js" ).parseString;
+// <a href="https://github.com/cho45/node-here.js">here</a>
+var here = require( 'here' ).here;
+// <a href="https://github.com/visionmedia/ejs">ejs</a>
+var ejs = require( 'ejs' );
 </code></pre>
 
       </div>      
@@ -195,34 +200,35 @@
         <a data-toggle="collapse" data-parent="#authenticationSetting" href="#authenticationSettingForm">Authentication Setting</a>
       </h3>
       <div id="authenticationSettingForm" class="panel-collapse collapse">
-        <form role="form">
+        <div class="panel-body">
+          <form role="form">
 
-          <div class="form-group">
-            <input id="username" type="text" value="" placeholder="new username"><br>
-          </div>
+            <div class="form-group">
+              <input id="username" type="text" value="" placeholder="new username"><br>
+            </div>
 
-          <div class="form-group">
-            <input id="password" type="password" value="" placeholder="new password"><br>
-          </div>
+            <div class="form-group">
+              <input id="password" type="password" value="" placeholder="new password"><br>
+            </div>
 
-          <div class="form-group">
-            <input id="rePassword" type="password" value="" placeholder="retype new password"><br>
-          </div>
+            <div class="form-group">
+              <input id="rePassword" type="password" value="" placeholder="retype new password"><br>
+            </div>
 
-          <div class="form-group">
-            <input type="button" value="Set" onclick="modal.execute( setAuth )">
-          </div>
+            <div class="form-group">
+              <input type="button" value="Set" onclick="modal.execute( setAuth )">
+            </div>
 
-        </form>
+          </form>
 
-        <div class="alert alert-warning">For Openshift: Authentication The above information will be stored in <em>app-root/data/.auth</em>. You can check by connecting with <a href="https://www.openshift.com/developers/remote-access">SSH</a>.</div>
-        
+          <div class="alert alert-warning">For Openshift: Authentication setting will be stored in <em>app-root/data/.auth</em>. You can check by connecting with <a href="https://www.openshift.com/developers/remote-access">SSH</a>.</div>
+        </div>
       </div>
     </div>
 
     <hr>
 
-    <footer><p>BY:@takahashihideki</p></footer>
+    <footer><p>Please enjoy your far functions at your own risk!</p></footer>
 
   <!-- /content -->
   </div>
@@ -395,7 +401,7 @@ var call = function () {
 
 var list = function () {
 
-  $( "#moduleList" ).empty();
+  $( "#moduleList .panel-body" ).empty();
   
   $.ajax( {
     url: "/admin/list",
@@ -409,7 +415,7 @@ var list = function () {
           lis += "<li><a href='javascript:void( 0 )'>" + this.replace( /\.js$/, "" ) + "</a></li>"
         }
       } );
-      $( "#moduleList" ).append( "<ul>" + lis + "</ul>" );
+      $( "#moduleList .panel-body" ).append( "<ul>" + lis + "</ul>" );
       $.each( $( "#moduleList a" ), function () { 
         $( this ).on( "click", function () {
           select( $( this ).text() );
