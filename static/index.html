@@ -156,12 +156,12 @@ exports.func2 = function ( request, response ) {
 exports.insert = function ( request, response, db ) {
 
   var collection = db.collection( "test" );
-  collection.insert( { text: req.query.text }, function ( err, result ) {
+  collection.insert( { text: request.query.text }, function ( err, result ) {
     if ( err ) {
-      res.return( { status: 0, error: err } );
+      response.return( { status: 0, error: err } );
     }
     else {
-      res.return( { status: 1, result: result } );
+      response.return( { status: 1, result: result } );
     }
   } );
 
