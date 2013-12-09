@@ -1,7 +1,7 @@
 {
-  "name": "farfunction-openshift-quickstart",
-  "version": "0.1",
-  "description": "You can post server side javascript functions as node.js module which you can call in RESTful URL.",
+  "name": "OpenShift-Sample-App",
+  "version": "1.0.0",
+  "description": "OpenShift Sample Application",
   "keywords": [
     "OpenShift",
     "Node.js",
@@ -9,18 +9,18 @@
     "openshift"
   ],
   "author": {
-    "name": "takahashihideki",
-    "email": "takahashihideki@gmail.com",
-    "url":  "http://chushoww.blogspot.com"
+    "name": "OpenShift",
+    "email": "ramr@example.org",
+    "url":  "http://www.openshift.com/"
   },
-  "homepage": "https://github.com/takahashihideki-git/farfunction-openshift-quickstart",
+  "homepage": "http://www.openshift.com/",
   "repository": {
     "type": "git",
-    "url": "https://github.com/takahashihideki-git/farfunction-openshift-quickstart"
+    "url": "https://gitub.com/openshift/origin-server"
   },
 
   "engines": {
-    "node": ">= 0.10.0",
+    "node": ">= 0.6.0",
     "npm": ">= 1.0.0"
   },
 
@@ -29,6 +29,6 @@
   "devDependencies": {},
   "bundleDependencies": [],
 
-  "private": false,
+  "private": true,
   "main": "server.js"
 }
