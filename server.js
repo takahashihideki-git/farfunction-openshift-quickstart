@@ -100,6 +100,7 @@ var auth = function ( user, pass ) {
 };
 
 app.all( '/admin/*', express.basicAuth( auth ) );
+app.all( '/', express.basicAuth( auth ) );
 
 
 /* Write Module */
