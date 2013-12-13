@@ -8,7 +8,7 @@ app.use( express.bodyParser() );
 app.use( express.cookieParser() );
 app.use( 
   express.session( {
-    secret: "saginomiya"
+    secret: process.env.OPENSHIFT_APP_UUID || "aobadai"
   } )
 );
 app.use( express.static( __dirname + '/static' ) );
@@ -93,11 +93,15 @@ app.all( /^\/call\/(.+)\/([^\/]+)$/, function ( req, res ) { wrapper( req, res )
 
 /* Need Basic Authentication */
 
-app.all( '/admin/*', express.basicAuth( function ( user, pass ) {
+var auth = function ( user, pass ) {
 
     return user === authUsername && pass === authPassword;
 
-}));
+};
+
+app.all( '/admin/*', express.basicAuth( auth ) );
+
+app.all( '/', express.basicAuth( auth ) );
 
 /* Write Module */
 app.post( /^\/admin\/post\/([^\/]+)$/, function ( req, res ) { 
@@ -225,6 +229,12 @@ app.post( /^\/admin\/setAuth/, function ( req, res ) {
   return false;  
   
 } );
+
+/* document root */
+app.get( '/', function( req, res ) {
+  res.redirect( '/admin.html' );
+} );
+
 
 /* Rear Guard ! */
 process.on( 'uncaughtException', function ( error ) {

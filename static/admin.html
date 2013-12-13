@@ -172,7 +172,12 @@ exports.find = function ( requst, response, db ) {
   var collection = db.collection( "test" );
 
   collection.find().toArray( function( err, docs ) {
-    response.return( docs );
+    if ( err ) {
+      response.return( { status: 0, error: err } );
+    }
+    else {
+      response.return( docs );
+    }
   } );
 
 }
@@ -418,6 +423,7 @@ var list = function () {
       $( "#moduleList .panel-body" ).append( "<ul>" + lis + "</ul>" );
       $.each( $( "#moduleList a" ), function () { 
         $( this ).on( "click", function () {
+          clear();
           select( $( this ).text() );
         } );
       } );
@@ -427,6 +433,11 @@ var list = function () {
     }
   } );
   
+}
+
+var clear = function () {
+  $( "form" ).eq(0)[0].reset();
+  $( "form" ).eq(1)[0].reset();
 }
 
 var select = function ( moduleName ) {
