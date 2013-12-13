@@ -101,7 +101,6 @@ var auth = function ( user, pass ) {
 
 app.all( '/admin/*', express.basicAuth( auth ) );
 
-app.all( '/', express.basicAuth( auth ) );
 
 /* Write Module */
 app.post( /^\/admin\/post\/([^\/]+)$/, function ( req, res ) { 
