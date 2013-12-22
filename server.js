@@ -248,7 +248,7 @@ app.get( '/', function( req, res ) {
     res.redirect( '/admin' );
   }
   else {
-    res.redirect( 'https://' + req.headers.host + req.url + '/admin' );
+    res.redirect( 'https://' + req.headers.host + req.url + 'admin' );
   }
 
 } );

@@ -252,6 +252,8 @@ var ejs = require( 'ejs' );
 
 var load = function () {
 
+  var status = true;
+
   $.ajax( {
     url: "/admin/get/" + $( "#moduleName" ).val(),
     method: "GET",
@@ -262,18 +264,22 @@ var load = function () {
       }
       else {
         alert( "Not Found" );
-        return false;
+        status = false;
       }
     },
     error: function ( xhr, status, err ) {
       alert( status + "\n" + err );
-      return false;
+        status = false;
     }
   } );
-  
+
+  return status;
+
 }
 
 var rm = function () {
+
+  var status = true;
 
   var moduleName = $( "#moduleName" ).val();
 
@@ -293,22 +299,28 @@ var rm = function () {
         }
         else {
           alert( "Not Found" );
-          return false;
+          status = false;
         }
       },
       error: function ( xhr, status, err ) {
         alert( status + "\n" + err );
-        return false;
+        status = false;
       }
     } );
 
   }
+  else {
+    status = false;
+  }
+
+  return status;
   
 }
 
 
 var save = function () {
 
+  var status = true;
   var execute  = false;
 
   if ( exists() ) {
@@ -334,20 +346,27 @@ var save = function () {
         }
         else {
           alert( "Error" );
-          return false;
+          status = false;
         }
       },
       error: function ( xhr, status, err ) {
         alert( status + "\n" + err );
-        return false;
+        status = false;
       }
     } );
 
   }
+  else {
+    status = false;
+  }
+
+  return status;
   
 }
 
 var refresh = function () { 
+
+  var status = true;
 
   $.ajax( {
     url: "/admin/refresh/" + $( "#moduleName" ).val(),
@@ -356,14 +375,16 @@ var refresh = function () {
     success: function ( data ) {
       if ( ! data.status ) {
         alert( "error" );
-        return false;
+        status = false;
      }
     },
     error: function ( xhr, status, err ) {
       alert( status + "\n" + err );
-      return false;
+      status = false;
     }
   } );
+
+  return status;
   
 }
 
@@ -382,7 +403,6 @@ var exists = function () {
     },
     error: function ( xhr, status, err ) {
       alert( status + "\n" + err );
-      return false;
     }
   } );
 
@@ -391,6 +411,8 @@ var exists = function () {
 }
 
 var call = function () {
+
+  var status = true;
 
   var action = "/call/" + $( "#pathModuleName" ).val() + "/" + $( "#pathMethod" ).val();   
   var method = $( "form" ).eq(1).find( "input[name=method]:checked" ).val();
@@ -410,13 +432,17 @@ var call = function () {
     },
     error: function ( xhr, status, err ) {
       alert( status + "\n" + err );
-      return false;
+      status = false;
     }
   } );
+
+  return status;
   
 }
 
 var list = function () {
+
+  var status = true;
 
   $( "#moduleList .panel-body" ).empty();
   
@@ -442,9 +468,11 @@ var list = function () {
     },
     error: function ( xhr, status, err ) {
       alert( status + "\n" + err );
-      return false;
+      status = false;
     }
   } );
+
+  return status;
   
 }
 
@@ -461,6 +489,8 @@ var select = function ( moduleName ) {
 }
 
 var setAuth = function () {
+
+  var status = true;
 
   var username = $( "#username" ).val();
   var password = $( "#password" ).val();
@@ -498,9 +528,11 @@ var setAuth = function () {
     },
     error: function ( xhr, status, err ) {
       alert( status + "\n" + err );
-      return false;
+      status = false;
     }
   } );
+
+  return status;
   
 }
 
@@ -551,7 +583,7 @@ ModalSpinner.prototype = {
   stop: function ( time ) {
     var spinner = this;
     var duration = time;
-    if ( duration === undefined  ) {
+    if ( duration === undefined || duration === null ) {
        duration = 500;
     }
     setTimeout( function () { spinner.doStop() }, duration );
@@ -576,7 +608,7 @@ Modal.prototype = {
     if ( ! status ) {
       time = 0;
     }
-    this.spinner.stop( time  );
+    this.spinner.stop( time );
   }
 }
 
