@@ -99,9 +99,8 @@ var auth = function ( user, pass ) {
 
 };
 
+app.all( '/admin', express.basicAuth( auth ) );
 app.all( '/admin/*', express.basicAuth( auth ) );
-app.all( '/', express.basicAuth( auth ) );
-
 
 /* Write Module */
 app.post( /^\/admin\/post\/([^\/]+)$/, function ( req, res ) { 
@@ -230,9 +229,28 @@ app.post( /^\/admin\/setAuth/, function ( req, res ) {
   
 } );
 
-/* document root */
+/* Admin UI */
+app.get( '/admin', function( req, res ) {
+  fs.readFile( "admin.html", "utf8", function ( err, data ) {
+    if ( err ) {
+      res.send( "Can not open admin.html" ); 
+    }
+    else {
+      res.send( data );
+    }
+  } );
+} );
+
+/* Document Root */
 app.get( '/', function( req, res ) {
-  res.redirect( '/admin.html' );
+
+  if ( req.headers.host.match( new RegExp( localHost ) ) ) { // for dev
+    res.redirect( '/admin' );
+  }
+  else {
+    res.redirect( 'https://' + req.headers.host + req.url + '/admin' );
+  }
+
 } );
 
 
@@ -241,7 +259,7 @@ process.on( 'uncaughtException', function ( error ) {
   console.log( 'error: ' + error );
 } );
 
-// server start with mongodb
+// Sserver start with mongodb
 
 var mdb;
 

@@ -41,6 +41,8 @@
       <p>You can post server side javascript functions as node.js module which you can call in RESTful URL.</p>
     </div>
 
+    <div id="warning-protocol" class="alert alert-warning" style="display:none">You should send the authentication information in the HTTPS. <a href="javascript:switchToHttps()">Switch to HTTPS</a></div>
+
     <form role="form">
       <div class="form-group">
         <label for="moduleName">module name</label><br>
@@ -260,10 +262,12 @@ var load = function () {
       }
       else {
         alert( "Not Found" );
+        return false;
       }
     },
     error: function ( xhr, status, err ) {
       alert( status + "\n" + err );
+      return false;
     }
   } );
   
@@ -289,10 +293,12 @@ var rm = function () {
         }
         else {
           alert( "Not Found" );
+          return false;
         }
       },
       error: function ( xhr, status, err ) {
         alert( status + "\n" + err );
+        return false;
       }
     } );
 
@@ -328,10 +334,12 @@ var save = function () {
         }
         else {
           alert( "Error" );
+          return false;
         }
       },
       error: function ( xhr, status, err ) {
         alert( status + "\n" + err );
+        return false;
       }
     } );
 
@@ -348,10 +356,12 @@ var refresh = function () {
     success: function ( data ) {
       if ( ! data.status ) {
         alert( "error" );
+        return false;
      }
     },
     error: function ( xhr, status, err ) {
       alert( status + "\n" + err );
+      return false;
     }
   } );
   
@@ -372,6 +382,7 @@ var exists = function () {
     },
     error: function ( xhr, status, err ) {
       alert( status + "\n" + err );
+      return false;
     }
   } );
 
@@ -399,6 +410,7 @@ var call = function () {
     },
     error: function ( xhr, status, err ) {
       alert( status + "\n" + err );
+      return false;
     }
   } );
   
@@ -430,6 +442,7 @@ var list = function () {
     },
     error: function ( xhr, status, err ) {
       alert( status + "\n" + err );
+      return false;
     }
   } );
   
@@ -485,9 +498,19 @@ var setAuth = function () {
     },
     error: function ( xhr, status, err ) {
       alert( status + "\n" + err );
+      return false;
     }
   } );
   
+}
+
+var switchToHttps = function () {
+
+  if ( window.location.protocol == "http:"  ) {
+    window.location.href = window.location.href.replace( /^http:/, "https:" ); 
+    return;
+  }
+
 }
 
 var ModalSpinner = function ( containerID ) {
@@ -525,9 +548,13 @@ ModalSpinner.prototype = {
     this.spinner.spin( $( this.container )[ 0 ] );
     this.isSpinning = true;
   },
-  stop: function () {
+  stop: function ( time ) {
     var spinner = this;
-    setTimeout( function () { spinner.doStop() }, 500 )
+    var duration = time;
+    if ( duration === undefined  ) {
+       duration = 500;
+    }
+    setTimeout( function () { spinner.doStop() }, duration );
   },
   doStop: function () {
     this.spinner.stop();
@@ -544,8 +571,12 @@ Modal.prototype = {
   spinner: null,
   execute: function ( f ) {
     this.spinner.start();
-    f();
-    this.spinner.stop();
+    var status = f();
+    var time = null;
+    if ( ! status ) {
+      time = 0;
+    }
+    this.spinner.stop( time  );
   }
 }
 
@@ -553,16 +584,13 @@ var modal = null;
 
 $( function () {
 
-  // force https (127.0.0.1 is developer's local host)
-  if ( window.location.protocol != "https:" && ! window.location.host.match( /^127\.0\.0\.1/ )  ) {
-    window.location.href = window.location.href.replace( /^http:/, "https:" ); 
-    return;
-  }
-  else {
+    if ( window.location.protocol == "http:" ) {
+      $( "#warning-protocol" ).show();
+    }
 
     $( "body" ).show();
 
-    $( "#host" ).text( window.location.href );
+    $( "#host" ).text( "http://" + window.location.host + "/" );
 
     $( "#moduleName" ).on( "keyup", function () {
       $( "#pathModuleName" ).val( $( this ).val() );
@@ -571,8 +599,6 @@ $( function () {
     modal = new Modal( new ModalSpinner( "spin" ) );
 
     list();
-
-  }
 
 } );
 
