@@ -7,13 +7,13 @@ OpenShift quickstart for "Far Function ( js )".
 Far Function ( js ) is
 =======================
 
-"Far function ( js )" provides a "Web function" instead of "Web application".
+Far function ( js ) provides a "Web Function" rather than a "Web Application".
 
-Developer will develop the "Web function" as a module for node.js.
+Developers will develop the "Web Function" as a module for node.js.
 
-Developers can register to server "Web function" using a Web form.
+Developers will be able to register "Web Function" to the server using a web form.
 
-The user will be able to call in RESTful URL "Web function".
+Users can call the "Web Function" in the URL a RESTful.
 
 For example ...
 
