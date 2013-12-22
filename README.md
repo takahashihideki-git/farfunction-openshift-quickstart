@@ -13,7 +13,7 @@ Developers will develop the "Web Function" as a module for node.js.
 
 Developers will be able to register "Web Function" to the server using a web form.
 
-Users can call the "Web Function" in the URL a RESTful.
+Developers can call the "Web Function" in the RESTful URL from the client-side application.
 
 For example ...
 
