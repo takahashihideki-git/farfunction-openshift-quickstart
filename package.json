@@ -1,5 +1,5 @@
 {
-  "name": "Far Function (js)",
+  "name": "Far-Function",
   "version": "1.0.0",
   "description": "You can post server side javascript functions as node.js module which you can call in RESTful URL.",
   "keywords": [
