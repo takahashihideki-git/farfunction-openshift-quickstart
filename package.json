@@ -1,7 +1,7 @@
 {
-  "name": "OpenShift-Sample-App",
+  "name": "Far Function (js)",
   "version": "1.0.0",
-  "description": "OpenShift Sample Application",
+  "description": "You can post server side javascript functions as node.js module which you can call in RESTful URL.",
   "keywords": [
     "OpenShift",
     "Node.js",
@@ -9,11 +9,11 @@
     "openshift"
   ],
   "author": {
-    "name": "OpenShift",
-    "email": "ramr@example.org",
-    "url":  "http://www.openshift.com/"
+    "name": "takahashihideki",
+    "email": "takahashihideki@gmail.com",
+    "url":  "https://github.com/takahashihideki-git/farfunction-openshift-quickstart"
   },
-  "homepage": "http://www.openshift.com/",
+  "homepage": "https://github.com/takahashihideki-git/farfunction-openshift-quickstart",
   "repository": {
     "type": "git",
     "url": "https://gitub.com/openshift/origin-server"
